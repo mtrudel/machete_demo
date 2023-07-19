@@ -57,12 +57,12 @@ defmodule MacheteDemoTest do
 
   test "TEST 1: literals" do
     # Your job is to make each of these assertions pass
-    assert (2 + 2) ~> 5
-    assert 5 ~> (2 + 2)
-    assert (2 + 2) ~> 4.0
-    assert 123 ~> "123"
-    assert :abc ~> "abc"
-    assert nil ~> false
+    assert (2 + 2) ~> 4
+    assert 5 ~> (2 + 3)
+    assert (2 + 2) ~> 4
+    assert 123 ~> 123
+    assert :abc ~> :abc
+    assert nil ~> nil
   end
 
   #
@@ -77,17 +77,15 @@ defmodule MacheteDemoTest do
   # align.
   #
 
-  # IMPORTANT! Remove / comment out the following `@tag :skip` line to start running this test
-  @tag :skip
   test "TEST 2: variables" do
     abc_str = "abc"
     abc_atom = :abc
 
     # Your job is to make each of these assertions pass
-    assert abc_str ~> "ABC"
-    assert abc_atom ~> "abc"
-    assert "abc" ~> abc_atom
-    assert (abc_str <> abc_str) ~> "abc abc"
+    assert abc_str ~> "abc"
+    assert abc_atom ~> :abc
+    assert "abc" ~> abc_str
+    assert (abc_str <> abc_str) ~> "abcabc"
   end
 
   #
@@ -106,28 +104,26 @@ defmodule MacheteDemoTest do
   # docs](https://hexdocs.pm/machete/Machete.html).
   #
 
-  # IMPORTANT! Remove / comment out the following `@tag :skip` line to start running this test
-  @tag :skip
   test "TEST 3: parametric matchers" do
-    assert 1.0 ~> integer()
-    assert "abc" ~> atom()
+    assert 1.0 ~> float()
+    assert "abc" ~> string()
 
     # Matchers can also take arguments, which can further refine the values that will match
-    assert "abc" ~> string(length: 4)
-    assert -1 ~> integer(positive: true)
+    assert "abc" ~> string(length: 3)
+    assert -1 ~> integer(negative: true)
 
     # Matchers are defined for a number of built-in types as well
     # HINT: ISO8601 uses dashes ("-") to separate date components, not slashes
-    assert "2023/07/15T00:00:00.000000Z" ~> iso8601_datetime()
-    assert DateTime.utc_now() ~> datetime(before: ~U[2020-01-01 00:00:00.000000Z])
+    assert "2023-07-15T00:00:00.000000Z" ~> iso8601_datetime()
+    assert DateTime.utc_now() ~> datetime(after: ~U[2020-01-01 00:00:00.000000Z])
 
     # Matching on structs can be a bit tricky since they can have default values. The
     # `struct_like` matcher helps with this; only fields listed in the second argument are checked
     assert URI.parse("http://example.com/abc")
-           ~> struct_like(URI, %{scheme: "http", host: "example.com", path: "/def"})
+           ~> struct_like(URI, %{scheme: "http", host: "example.com", path: "/abc"})
 
     # You can also match against regexes
-    assert "abc" ~> ~r/def/
+    assert "abc" ~> ~r/abc/
 
     # More matchers (these already pass! They're just here for demonstration)
     assert DateTime.utc_now() ~> datetime(roughly: :now)
@@ -154,14 +150,12 @@ defmodule MacheteDemoTest do
   #    a syntax nearly identical to that used by [jq](https://jqlang.github.io/jq/).
   #
 
-  # IMPORTANT! Remove / comment out the following `@tag :skip` line to start running this test
-  @tag :skip
   test "TEST 4: collections" do
-    assert %{a: 123} ~> %{b: 123}
-    assert %{a: -123} ~> %{a: integer(positive: true)}
-    assert [1, 2, 3] ~> [1, 2]
-    assert {1, 2, 3} ~> {integer(), integer(), float()}
-    assert {:ok, [1, 2]} ~> {:ok, {1, 2}}
+    assert %{a: 123} ~> %{a: 123}
+    assert %{a: -123} ~> %{a: integer(negative: true)}
+    assert [1, 2, 3] ~> [1, 2, 3]
+    assert {1, 2, 3} ~> {integer(), integer(), integer()}
+    assert {:ok, [1, 2]} ~> {:ok, [1, 2]}
 
     # There are a number of matchers defined for collections as well
     # (these already pass! They're just here for demonstration)
@@ -191,8 +185,6 @@ defmodule MacheteDemoTest do
   #    powers all of Machete's matchers, and it's free for you to use on your own types as well.
   #
 
-  # IMPORTANT! Remove / comment out the following `@tag :skip` line to start running this test
-  @tag :skip
   test "TEST 5: DIY Matchers" do
     # These two tests are equivalent (both of them also pass and are here just for illustration)
     assert 123 ~> integer(positive: true)
@@ -211,7 +203,7 @@ defmodule MacheteDemoTest do
 
   # You'll need to implement this function
   def province() do
-    raise "Implement me!"
+    any(~w[BC AB SK MB ON QC NB NS PE NL YT NT NU])
   end
 
   #
@@ -249,9 +241,15 @@ defmodule MacheteDemoTest do
   #    fine. It's all up to you and how much detail you think that a specific test needs.
   #
 
-  # IMPORTANT! Remove / comment out the following `@tag :skip` line to start running this test
-  @tag :skip
   test "TEST 5: Putting it all together" do
-    assert MacheteDemo.get_user() ~> :todo
+    assert MacheteDemo.get_user()
+           ~> %{
+             id: identifier(),
+             name: string(),
+             age: integer(min: 20, max: 80),
+             created_at: datetime(roughly: :now, time_zone: :utc),
+             is_admin: false,
+             tags: list(length: 3, elements: string(empty: false))
+           }
   end
 end
