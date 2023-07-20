@@ -1,4 +1,18 @@
 defmodule MacheteDemoTest do
+  #
+  # ABOUT MACHETE
+  # 
+  # Machete is a tool to help you write more literate and expressive test assertions.
+  #
+  # The foundation of Machete is the ~> ('squiggle arrow') operator. This operator takes the
+  # value on its left hand side and 'matches' it against the value on its right. The operator then
+  # returns a boolean value indicating whether this match succeeded or failed. 
+  #
+  # The exercises in this file are a gradual introduction to how matchers work in Machete. We'll
+  # begin with some basic building blocks such as literals, variables, and parametric matchers. In
+  # the final exercise of this file we'll combine all of these pieces into a coherent whole; this
+  # is where Machete really starts to shine. Hopefully you will leave this demo with an
+  # understanding of how your own tests can be simplified & improved using Machete.
   # 
   # RUNNING THIS DEMO
   #
@@ -77,23 +91,24 @@ defmodule MacheteDemoTest do
   end
 
   #
-  # TEST 3: Matching using matchers
+  # TEST 3: Parametric matchers
   #
-  # This test demonstrates the usage of some of Machete's matchers. Matchers allow you to make
-  # assertions about a value based on general attributes of the value, such as its type. 
+  # This test demonstrates the usage of some of Machete's parametric matchers. Parametric matchers
+  # allow you to make assertions about a value based on general attributes of the value, such as
+  # its type. 
   # 
   # This test is currently failing because our matchers do not quite align with the values we are
   # asserting against
   #
-  # In addition to the simple type-based matchers we'll seen here, Machete also includes a rich
-  # set of algebraic and collection-based matchers, some of which we'll see later. A complete list
-  # is available in the 'Matchers' section of the [Machete
+  # In addition to the simple type-based parametric matchers we'll seen here, Machete also
+  # includes a rich set of algebraic and collection-based matchers, some of which we'll see later.
+  # A complete list is available in the 'Matchers' section of the [Machete
   # docs](https://hexdocs.pm/machete/Machete.html).
   #
 
   # IMPORTANT! Remove / comment out the following `@tag :skip` line to start running this test
   @tag :skip
-  test "TEST 3: matchers" do
+  test "TEST 3: parametric matchers" do
     assert 1.0 ~> integer()
     assert "abc" ~> atom()
 
@@ -150,8 +165,14 @@ defmodule MacheteDemoTest do
 
     # There are a number of matchers defined for collections as well
     # (these already pass! They're just here for demonstration)
+    #
+    # Assert that the left hand side is a map from atoms to integers
+    assert %{a: 123, b: 234} ~> map(keys: atom(), values: integer())
+    # Assert that the left hand side contains at least the specified map
     assert %{a: 123, b: 234} ~> superset(%{a: integer()})
+    # Assert taht the left hand side is a list of integers of length 3
     assert [1, 2, 3] ~> list(length: 3, elements: integer())
+    # Assert that the left hand side contains the values 1, 2, 3 in any possible order
     assert [3, 2, 1] ~> in_any_order([1, 2, 3])
   end
 
