@@ -3,6 +3,7 @@ defmodule MacheteDemo do
 
   def get_user do
     %{
+      id: Enum.random(1..1_000_000),
       name: Enum.random(["Moe Fonebone", "Abner Legrand", "Ella Grimes", "Serena Riley"]),
       age: Enum.random(20..80),
       created_at: DateTime.utc_now(),

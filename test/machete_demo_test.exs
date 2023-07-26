@@ -176,8 +176,46 @@ defmodule MacheteDemoTest do
     assert [3, 2, 1] ~> in_any_order([1, 2, 3])
   end
 
+  # 
+  # TEST 5: DIY Matchers
   #
-  # TEST 5: Putting it all together
+  # This test demonstrates the idea of extending Machete to make your own matchers. This lets you
+  # build a suite of matchers that are specific to your application's domain, making your tests
+  # read even more literately.
+  #
+  # HINTS:
+  #
+  # 1. Matchers are just functions; there is no macro magic or anything subtle
+  # 2. We're not covering it here, but you can implement custom matchers for any of your own
+  #    struct types; see the Matchable protocol for details. This same protocol is actually what
+  #    powers all of Machete's matchers, and it's free for you to use on your own types as well.
+  #
+
+  # IMPORTANT! Remove / comment out the following `@tag :skip` line to start running this test
+  @tag :skip
+  test "TEST 5: DIY Matchers" do
+    # These two tests are equivalent (both of them also pass and are here just for illustration)
+    assert 123 ~> integer(positive: true)
+    assert 123 ~> identifier()
+
+    # Now make a matcher function to match against a Canadian province prefix, based on the
+    # following example
+    assert "ON" ~> any(~w[BC AB SK MB ON QC NB NS PE NL YT NT NU])
+
+    assert "ON" ~> province()
+  end
+
+  def identifier() do
+    integer(positive: true)
+  end
+
+  # You'll need to implement this function
+  def province() do
+    raise "Implement me!"
+  end
+
+  #
+  # TEST 6: Putting it all together
   #
   # In this test we'll be combining all of the things we've learned so far into one super test.
   # This is where the power and expressiveness of Machete really starts to become clear; if you
@@ -191,7 +229,8 @@ defmodule MacheteDemoTest do
   # a randomly generated user which has a structure like the following:
   #
   # %{
-  #   name: <A random full name>,
+  #   id: <a positive integer>,
+  #   name: <a random full name>,
   #   age: <random int from 20 to 80>,
   #   created_at: <the time this random user was generated, as a DateTime>
   #   is_admin: false,
